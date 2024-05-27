@@ -1,0 +1,81 @@
+// Define data structures
+
+class User:
+    id
+    watched_movies // List of movie IDs the user has watched
+    user_rating 
+
+
+class Movie:
+    id
+    title
+    genre
+    rating
+
+
+// Sample data
+users = List of User objects
+movies = List of Movie objects
+
+// Function to calculate similarity between two users
+function calculate_similarity(user1, user2):
+    user_similarity = 2D array of zeros with dimensions same as user_item_matrix
+
+    for i in range(len(user_item_matrix)):
+        for j in range(len(user_item_matrix)):
+            if i != j:
+                user_similarity[i][j] = cosine_similarity(user_item_matrix[i], user_item_matrix[j])
+
+    return user_similarity
+
+function cosine_similarity(vector1, vector2):
+    dot_product = sum(vector1[i] * vector2[i] for i in range(len(vector1)))
+    norm1 = sqrt(sum(vector1[i] * vector1[i] for i in range(len(vector1))))
+    norm2 = sqrt(sum(vector2[i] * vector2[i] for i in range(len(vector2))))
+    if norm1 == 0 or norm2 == 0:
+        return 0
+    return dot_product / (norm1 * norm2)
+
+// Function to get movie recommendations for a user
+function get_recommendations(target_user):
+    target_user_idx = user_index[target_user_id]
+    similar_users_idx = list of indices of users sorted by similarity to target_user_idx in descending order, excluding target_user_idx itself
+
+    recommended_movies = dictionary to store movie_id: aggregated_similarity_score
+
+    for each similar_user_idx in similar_users_idx:
+        for each movie_id, rating in users[similar_user_idx].watched_movies:
+            if movie_id not in users[target_user_idx].watched_movies:
+                if movie_id in recommended_movies:
+                    recommended_movies[movie_id] += rating * user_similarity[target_user_idx][similar_user_idx]
+                else:
+                    recommended_movies[movie_id] = rating * user_similarity[target_user_idx][similar_user_idx]
+
+    sorted_recommended_movies = list of movie_ids sorted by aggregated_similarity_score in recommended_movies in descending order
+    top_k_recommended_movie_ids = first k elements from sorted_recommended_movies
+
+    recommended_movie_titles = list of movie titles for movie ids in top_k_recommended_movie_ids
+
+    return recommended_movie_titles
+
+// Helper functions
+function find_user_by_id(user_id):
+    for user in users:
+        if user.id == user_id:
+            return user
+    return null
+
+function find_movie_by_id(movie_id):
+    for movie in movies:
+        if movie.id == movie_id:
+            return movie
+    return null
+
+// Main
+user_item_matrix, user_index, movie_index = create_user_item_matrix(users, movies)
+user_similarity = calculate_similarity_matrix(user_item_matrix)
+
+target_user_id = ID of the target user for whom recommendations are needed
+recommendations = get_recommendations(target_user_id, user_item_matrix, user_similarity, user_index, movie_index, movies)
+
+print("Recommended movies for user", target_user_id, ":", recommendations)
